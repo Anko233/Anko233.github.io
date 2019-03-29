@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        PE文件结构_1_PE头 - Anko_blog
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> April showers bring May flowers </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.jpg">
+        </div>
+        <div class="name">
+            <i>Anko</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#DOS头"><span class="toc-text">DOS头</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PE头标识IMAGE-NT-HEADER-Signature"><span class="toc-text">PE头标识IMAGE_NT_HEADER.Signature</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#标准PE头IMAGE-FILE-HEADER"><span class="toc-text">标准PE头IMAGE_FILE_HEADER</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#扩展PE头IMAGE-OPTIONAL-HEADER32"><span class="toc-text">扩展PE头IMAGE_OPTIONAL_HEADER32</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#数据目录结构DataDirectory"><span class="toc-text">数据目录结构DataDirectory</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#节表项IMAGE-SECTION-HEADER"><span class="toc-text">节表项IMAGE_SECTION_HEADER</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> April showers bring May flowers </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        PE文件结构_1_PE头
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2019-03-27 23:27:04</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#window" title="window">window</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#笔记" title="笔记">笔记</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <p>本系列是有关PE文件结构相关的笔记,基于《Windows PE权威指南》</p>
+<h1 id="DOS头"><a href="#DOS头" class="headerlink" title="DOS头"></a>DOS头</h1><p>DOS头是为了保持与16位系统的兼容而遗留下来的,是PE文件第一个数据结构,这个结构如今要知道的只有两个:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">e_magic 	WORD	;0000h - ExE标志</span><br><span class="line">e_lfanew 	DWORD	;003ch - PE头相对文件的偏移地址</span><br></pre></td></tr></table></figure></p>
+<p>e_magic是exe文件的标志,固定为’0x4D 0x5A’,也就是ASCII的’MZ’;e_lfanew是PE头的开始地址,因为DOS Stub大小不固定,PE头的位置不是固定的,操作系统就是从这里获取PE头的地址.    </p>
+<p>DOS Stub现在已经没有用了,就不作描述.</p>
+<h1 id="PE头标识IMAGE-NT-HEADER-Signature"><a href="#PE头标识IMAGE-NT-HEADER-Signature" class="headerlink" title="PE头标识IMAGE_NT_HEADER.Signature"></a>PE头标识IMAGE_NT_HEADER.Signature</h1><p>PE头结构IMAGE_NT_HEADER的第一个数据为PE头标识Signature,固定为’0x50 0x45 0x00 0x00’,即ASCII的’PE\0\0’.</p>
+<h1 id="标准PE头IMAGE-FILE-HEADER"><a href="#标准PE头IMAGE-FILE-HEADER" class="headerlink" title="标准PE头IMAGE_FILE_HEADER"></a>标准PE头IMAGE_FILE_HEADER</h1><p>PE标准头的结构如下,其中的偏移是相对于IMAGE_NT_HEADER头的偏移.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_FILE_HEADER STRUCT</span><br><span class="line">	Machine					WORD	;0004h - 运行平台</span><br><span class="line">	NumberOfSections			WORD	;0006h - PE文件中的节数</span><br><span class="line">	TimeDateStamp			DWORD	;0008h - 文件创建日期和时间</span><br><span class="line">	PointerToSymbolTable		DWORD	;000ch - 指向符号表</span><br><span class="line">	NumberOfSymbole			DWORD	;0010h - 符号表中的符号数量</span><br><span class="line">	SizeOfOptionalHeader		WORD	;0014h - 扩展头结构的长度</span><br><span class="line">	Characteristics				WORD	;0016h - 文件属性</span><br><span class="line">IMAGE_FILE_HEADER ENDS</span><br></pre></td></tr></table></figure></p>
+<p>Machine字段用来指定文件运行平台,i386的文件该字段是 01f0h;</p>
+<p>Characteristics的各个位表示文件的属性,此字段会影响系统对文件的装入方式,各属性位的含义如下表</p>
+<table>
+<thead>
+<tr>
+<th>数据位</th>
+<th>常量符号</th>
+<th>为1含义 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>IMAGE_FILE_RELOCS_STRIPPED</td>
+<td>文件中不存在重定位信息</td>
+<td></td>
+</tr>
+<tr>
+<td>1</td>
+<td>IMAGE_FILE_EXECUTABLE_IMAGE</td>
+<td>文件可执行</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>IMAGE_FILE_LINE_NUMS_STRIPPED</td>
+<td>不存在行信息</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>IMAGE_FILE_LOCAL_SYMS_STRIPPED</td>
+<td>不存在符号信息</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>IMAGE_FILE_AGGRESSIVE_WS_TRIM</td>
+<td>调整工作集</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>IMAGE_FILE_LARGE_ADDRESS_AWARE</td>
+<td>应用程序可处理大于2GB的地址</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td></td>
+<td>保留</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>IMAGE_FILE_BYTES_REVERSED_LO</td>
+<td>小尾方式</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>IMAGE_FILE_32BIT_MACHINE</td>
+<td>只在32位平台运行</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>IMAGE_FILE_DEBUG_STRIPPED</td>
+<td>不包含调试信息</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP</td>
+<td>不能从可移动盘运行</td>
+<td></td>
+</tr>
+<tr>
+<td>11</td>
+<td>IMAGE_FILE_NET_RUN_FROM_SWAP</td>
+<td>不能从网络运行</td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td>IMAGE_FILE_SYSTEM</td>
+<td>系统文件,无法直接运行</td>
+<td></td>
+</tr>
+<tr>
+<td>13</td>
+<td>IMAGE_FILE_DLL</td>
+<td>该文件是DLL文件</td>
+<td></td>
+</tr>
+<tr>
+<td>14</td>
+<td>IMAGE_FILE_UP_SYSTEM_ONLY</td>
+<td>文件不能在多处理计算机上运行</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>IMAGE_FILE_BYTES_REVERSED</td>
+<td>大尾方式</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h1 id="扩展PE头IMAGE-OPTIONAL-HEADER32"><a href="#扩展PE头IMAGE-OPTIONAL-HEADER32" class="headerlink" title="扩展PE头IMAGE_OPTIONAL_HEADER32"></a>扩展PE头IMAGE_OPTIONAL_HEADER32</h1><p>扩展PE头的结构如下,其中的偏移也是相对于IMAGE_NT_HEADER头的偏移.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_OPTIONAL_HEADER32 STRUCT</span><br><span class="line">	Magic						WORD	;0018h - 魔术字</span><br><span class="line">	MajorLinkerVersion				BYTE	;001ah - 链接器版本号</span><br><span class="line">	MinorLinkerVersion				BYTE	;001bh</span><br><span class="line">	SizeOfCode					DWORD	;001ch - 所有含代码节的总大小</span><br><span class="line">	SizeOfInitializedData				DWORD	;0020h - 所有含已初始化数据的节的总大小</span><br><span class="line">	SizeOfUninitializedData			DWORD	;0024h - 所有含未初始化数据的节的总大小</span><br><span class="line">	AddressOfEntryPoint				DWORD	;0028h - 程序执行入口RVA</span><br><span class="line">	BaseOfCode					DWORD	;002ch - 代码的节的起始RVA</span><br><span class="line">	BaseOfData					DWORD	;0030h - 数据的节的起始RVA</span><br><span class="line">	ImageBase					DWORD	;0034h - 程序的建议装载VA</span><br><span class="line">	SectionAlignment				DWORD	;0038h - 内存中节的对齐粒度</span><br><span class="line">	FileAlignment					DWORD	;003ch - 文件中节的对齐粒度</span><br><span class="line">	MajorOperatingSystemVersion		WORD	;0040h - 操作系统版本号</span><br><span class="line">	MinorOperatingSystemVersion		WORD	;0042h</span><br><span class="line">	MajorImageVersion				WORD	;0044h - PE版本号</span><br><span class="line">	MinorImageVersion				WORD	;0046h</span><br><span class="line">	MajorSubsystemVersion			WORD	;0048h - 所需子系统的版本号</span><br><span class="line">	MinorSubsystemVersion			WORD	;004ah</span><br><span class="line">	Win32VersionValue				DWORD	;004ch - 未用</span><br><span class="line">	SizeOfImage					DWORD	;0050h - 内存中PE映像尺寸</span><br><span class="line">	SizeOfHeaders					DWORD	;0054h - 所有头+节表的大小</span><br><span class="line">	CheckSum					DWORD	;0058h - 校验和</span><br><span class="line">	Subsystem					WORD	;005ch - 文件的子系统</span><br><span class="line">	DllCharacteristics				WORD	;005eh - DLL文件特性</span><br><span class="line">	SizeOfStackReserve				DWORD	;0060h - 初始化时栈大小</span><br><span class="line">	SizeOfStackCommit				DWORD	;0064h - 初始化时实际提交的栈大小</span><br><span class="line">	SizeOfHeapReserve				DWORD	;0068h - 初始化时保留的堆大小</span><br><span class="line">	SizeOfHeapCommit				DWORD	;006ch - 初始化时实际提交的堆大小</span><br><span class="line">	LoaderFlags					DWORD	;0070h - 调试相关</span><br><span class="line">	NumberOfRvaAndSizes			DWORD	;0074h - 数据目录结构DataDirectory的项目数</span><br><span class="line">	DataDirectory					;0078h - 数据目录结构</span><br><span class="line">IMAGE_OPTIONAL_HEADER32 ENDS</span><br></pre></td></tr></table></figure></p>
+<p>Magic:说明文件类型,PE32该字段为010Bh,PE32+为020Bh,ROM为0107h</p>
+<p>ImageBase:指定PE文件的优先装入地址,但DLL装入时可能会发生冲突,此时装载器会调整,因此使用此字段来寻找DLL位置并不靠谱,此值必须是64KB整数倍</p>
+<p>CheckSum:校验和算法为:</p>
+<ul>
+<li>1.将CheckSum清零</li>
+<li>2.以WORD为单位对数据块进行带进位的累加,大于WORD的溢出</li>
+<li>3.将累加和加上文件长度</li>
+</ul>
+<h1 id="数据目录结构DataDirectory"><a href="#数据目录结构DataDirectory" class="headerlink" title="数据目录结构DataDirectory"></a>数据目录结构DataDirectory</h1><p>这个结构是扩展PE头最后一个字段DataDirectory,改字段定义了文件中出现的所有不同类型的数据目录信息,此结构是一个数组,由16个IMAGE_DATA_DIRECTORY结构排列而成,IMAGE_DATA_DIRECTORY结构如下.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_DATA_DIRECTORY STRUCT</span><br><span class="line">	VirtualAddress DWORD ;000h - 大部分为数据的起始RVA</span><br><span class="line">	isize 		DWORD	;0004h - 数据块长度</span><br><span class="line">IMAGE_DATA_DIRECTORY ENDS</span><br></pre></td></tr></table></figure></p>
+<p>每一项代表的数据如下</p>
+<table>
+<thead>
+<tr>
+<th>数组编号</th>
+<th>数据信息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>导出表</td>
+</tr>
+<tr>
+<td>1</td>
+<td>导入表</td>
+</tr>
+<tr>
+<td>2</td>
+<td>资源表</td>
+</tr>
+<tr>
+<td>3</td>
+<td>异常表</td>
+</tr>
+<tr>
+<td>4</td>
+<td>属性证书</td>
+</tr>
+<tr>
+<td>5</td>
+<td>基地址</td>
+</tr>
+<tr>
+<td>6</td>
+<td>调试信息</td>
+</tr>
+<tr>
+<td>7</td>
+<td>预留0</td>
+</tr>
+<tr>
+<td>8</td>
+<td>指向全局指针表</td>
+</tr>
+<tr>
+<td>9</td>
+<td>线程局部存储</td>
+</tr>
+<tr>
+<td>10</td>
+<td>加载配置表</td>
+</tr>
+<tr>
+<td>11</td>
+<td>绑定导入表</td>
+</tr>
+<tr>
+<td>12</td>
+<td>导入函数地址表</td>
+</tr>
+<tr>
+<td>13</td>
+<td>延迟导入表</td>
+</tr>
+<tr>
+<td>14</td>
+<td>CLR运行时头部数据</td>
+</tr>
+<tr>
+<td>15</td>
+<td>系统保留</td>
+</tr>
+</tbody>
+</table>
+<h1 id="节表项IMAGE-SECTION-HEADER"><a href="#节表项IMAGE-SECTION-HEADER" class="headerlink" title="节表项IMAGE_SECTION_HEADER"></a>节表项IMAGE_SECTION_HEADER</h1><p>节表紧跟在PE头后面,由许多个节表项组成,每一项对应文件中的一个节.节表项数据结构定义如下.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_SECTION_HEADER STRUCT</span><br><span class="line">	Name1						;0000h - 以ASCII码字符串标识的节名</span><br><span class="line">	union Misc</span><br><span class="line">		PhysicalAddress</span><br><span class="line">		VirtualSize		DWORD	;0008h</span><br><span class="line">	ends</span><br><span class="line">	VirtualAddress			DWORD	;000ch - 节区的RVA</span><br><span class="line">	SizeOfRawData			DWORD	;0010h - 在文件对齐后的尺寸</span><br><span class="line">	PointerToRawData		DWORD	;0014h - 在文件中的偏移</span><br><span class="line">	PointerToRelocations		DWORD	;0018h - 在OBJ文件中使用.指向重定位表</span><br><span class="line">	PointerToLinenumbers	DWORD	;001ch - 行号表的位置</span><br><span class="line">	NumberOfRelocations	WORD	;0020h - 在OBJ文件中使用,重定位表个数</span><br><span class="line">	NumberOfLinenumbers	WORD	;0022h - 行号表中行号数量</span><br><span class="line">	Characteristics			DWORD	;0024h - 节的属性</span><br><span class="line">IMAGE_SECTION_HEADER ENDS</span><br></pre></td></tr></table></figure></p>
+<p>Characteristics部分位的数据含义如下.</p>
+<table>
+<thead>
+<tr>
+<th>数据位</th>
+<th>常量符号</th>
+<th>为1含义 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>IMAGE_SCN_CNT_CODE</td>
+<td>节中包含代码</td>
+</tr>
+<tr>
+<td>6</td>
+<td>IMAGE_SCN_CNT_INITIALIZED_DATA</td>
+<td>节中包含已初始化数据</td>
+</tr>
+<tr>
+<td>7</td>
+<td>IMAGE_SCN_CNT_UNINITIALIZED_DATA</td>
+<td>节中包含未初始化数据</td>
+</tr>
+<tr>
+<td>8</td>
+<td>IMAGE_SCN_LNK_OTHER</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>25</td>
+<td>IMAGE_SCN_MEN_DISCARDABLE</td>
+<td>节中数据在进程开始后被丢弃</td>
+</tr>
+<tr>
+<td>26</td>
+<td>IMAGE_SCN_MEN_NOT_CACHED</td>
+<td>节中数据不会经过缓存</td>
+</tr>
+<tr>
+<td>27</td>
+<td>IMAGE_SCN_MEN_NOT_PAGED</td>
+<td>节中数据不会被交换到磁盘</td>
+</tr>
+<tr>
+<td>28</td>
+<td>IMAGE_SCN_MEN_SHARED</td>
+<td>表示节中数据将被不同进程共享</td>
+</tr>
+<tr>
+<td>29</td>
+<td>IMAGE_SCN_MEN_EXECUTE</td>
+<td>映射到内存后页设置可执行</td>
+</tr>
+<tr>
+<td>30</td>
+<td>IMAGE_SCN_MEN_READ</td>
+<td>映射到内存后页设置可读</td>
+</tr>
+<tr>
+<td>31</td>
+<td>IMAGE_SCN_MEN_WRITE</td>
+<td>映射到内存后页设置可写</td>
+</tr>
+</tbody>
+</table>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
