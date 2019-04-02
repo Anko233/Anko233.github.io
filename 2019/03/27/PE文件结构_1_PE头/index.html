@@ -135,7 +135,7 @@
     <div class="post-content ">
         <p>本系列是有关PE文件结构相关的笔记,基于《Windows PE权威指南》</p>
 <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>PE头结构由几个部分组成,整体结构如下</p>
-<p><img src="picture/PE_1.png" alt></p>
+<p><img src="/root/Documents/blog/source/img/PE_1.png" alt></p>
 <p>其中,PE头IMAG_NT_HEADERS又由头标识,标准头,扩展头顺序组成.</p>
 <h1 id="DOS头"><a href="#DOS头" class="headerlink" title="DOS头"></a>DOS头</h1><p>DOS头是为了保持与16位系统的兼容而遗留下来的,是PE文件第一个数据结构,这个结构如今要知道的只有两个:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">e_magic 	WORD	;0000h - ExE标志</span><br><span class="line">e_lfanew 	DWORD	;003ch - PE头相对文件的偏移地址</span><br></pre></td></tr></table></figure></p>
 <p>e_magic是exe文件的标志,固定为’0x4D 0x5A’,也就是ASCII的’MZ’;e_lfanew是PE头的开始地址,因为DOS Stub大小不固定,PE头的位置不是固定的,操作系统就是从这里获取PE头的地址.    </p>
