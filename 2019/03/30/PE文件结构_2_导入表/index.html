@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        PE文件结构_2_导入表 - Anko_blog
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> April showers bring May flowers </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.jpg">
+        </div>
+        <div class="name">
+            <i>Anko</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#导入表简介"><span class="toc-text">导入表简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#导入表描述符IMAGE-IMPORT-DESCRIPTOR"><span class="toc-text">导入表描述符IMAGE_IMPORT_DESCRIPTOR</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#导入函数地址表IAT"><span class="toc-text">导入函数地址表IAT</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#绑定导入"><span class="toc-text">绑定导入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#延迟加载导入表"><span class="toc-text">延迟加载导入表</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> April showers bring May flowers </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        PE文件结构_2_导入表
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2019-03-30 18:14:07</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#window" title="window">window</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#笔记" title="笔记">笔记</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h1 id="导入表简介"><a href="#导入表简介" class="headerlink" title="导入表简介"></a>导入表简介</h1><p>导入表是PE文件中很重要的数据结构,PE文件会用到操作系统提供的各种函数实现如GUI显示,内核操作,异常处理,创建多线程等复杂操作,这时候就会调用到系统提供的各种函数,而导入表就是PE文件用来声明它调用了哪些动态链接库.windows加载器会根据导入表将动态链接库加载到进程中供进程使用.</p>
+<h1 id="导入表描述符IMAGE-IMPORT-DESCRIPTOR"><a href="#导入表描述符IMAGE-IMPORT-DESCRIPTOR" class="headerlink" title="导入表描述符IMAGE_IMPORT_DESCRIPTOR"></a>导入表描述符IMAGE_IMPORT_DESCRIPTOR</h1><p>导入表的地址可以根据PE扩展头的DataDirectory找到.导入表由一组导入表描述符IMAGE_IMPORT_DESCRIPTOR组成,每一个导入表描述符对应一个dll文件,最后一组全0,表示导入表描述结束,IMAGE_IMPORT_DESCRIPTOR结构如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_IMPORT_DESCRIPTOR STRUCT</span><br><span class="line">	union</span><br><span class="line">		Characteristics		dd</span><br><span class="line">		OriginalFirstThunk	dd	;0000h - 桥1</span><br><span class="line">	ends</span><br><span class="line">	TimeDataStamp		dd	;0004h - 时间戳</span><br><span class="line">	ForwarderChain			dd	;0008h - 链表的前一个结构</span><br><span class="line">	Name1				dd	;000ch - 指向链接库名字的指针</span><br><span class="line">	FirstThunk			dd	;0010h - 桥2</span><br><span class="line">IMAGE_IMPORT_DESCRIPTOR ENDS</span><br></pre></td></tr></table></figure></p>
+<p>桥1 指向了一个IMAGE_THUNK_DATA 结构数组,这个数组被定义为INT(Import Name Table). IMAGE_THUNK_DATA 结构是一个union类的双字,该结构通常指向一个IMAGE_IMPORT_BY_NAME结构.该结构如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_IMPORT_BY_NAME STRUCT</span><br><span class="line">	Hint		dw - 引入函数的编号</span><br><span class="line">	Name1	db - 引入函数的函数名(ASCII),可变尺寸</span><br><span class="line">IMAGE_IMPORT_BY_NAME ENDS</span><br></pre></td></tr></table></figure></p>
+<p>PE文件中通常会有一个IMAGE_IMPORT_BY_NAME结构数组,里面包含引入函数的编号和名称信息,IMAGE_THUNK_DATA和IMAGE_IMPORT_BY_NAME是一一对应的(大概吧)</p>
+<h1 id="导入函数地址表IAT"><a href="#导入函数地址表IAT" class="headerlink" title="导入函数地址表IAT"></a>导入函数地址表IAT</h1><p>IAT(Import Address Table)可以根据PE扩展头的DataDirectory找到,它是一个双字数组,每个双字代表一个引入函数的VA.为了区分不同链接库引入的函数,每个链接库的VA排在一起,然后以双字0结尾.</p>
+<p>IMAGE_IMPORT_DESCRIPTOR中的桥2指向的就是IAT中对应链接库的起始地址.</p>
+<p>在文件中,桥1与桥2指向的数据是一样的,但在文件加载时,PE加载器会根据链接库的地址,将IAT中的数据替换成对应函数的VA.</p>
+<p>总的来说,一个IMAGE_IMPORT_DESCRIPTOR结构对应一个动态链接库,链接库里的桥1最终指向了这个链接库中被引用的函数的名字,而桥2指向了被引用函数的VA.由于桥1和桥2中数据是一一对应的,通过桥1查找函数名后,可以通过桥2的找到函数的VA.</p>
+<h1 id="绑定导入"><a href="#绑定导入" class="headerlink" title="绑定导入"></a>绑定导入</h1><p>绑定导入指的是在windows加载PE前,提前将IAT中的数据替换成引入函数的VA,该机制的目的是加快PE文件的装载速度.绑定导入数据结构描述了文件中的绑定导入信息.绑定导入数据结构可以根据PE扩展头的DataDirectory找到.</p>
+<p>绑定导入数据由一系列IMAGE_BOUND_IMPORT_DESCRIPTOR结构组成,每个结构对应一个动态链接库,在每个结构后面,还会跟若干个IMAGE_BOUND_FORWARDER_REF结构,两种结构的定义如下.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_BOUND_IMPORT_DESCRIPTOR STRUCT</span><br><span class="line">	TimeDateStamp			DWORD	;0000h - 时间戳</span><br><span class="line">	OffsetModuleName			WORD	;0004h - DLL名称的地址</span><br><span class="line">	NumberOfModuleForwarderRefs	WORD	;0006h - 跟在结构后的ModuleForwarderRef的数目</span><br><span class="line">IMAGE_BOUND_IMPORT_DESCRIPTOR ENDS</span><br><span class="line"></span><br><span class="line">IMAGE_BOUND_FORWARDER_REF STRUCT</span><br><span class="line">	TimeDateStamp	DWORD	;0000h - 时间戳</span><br><span class="line">	OffsetModuleName	WORD	;0004h - DLL名称的地址</span><br><span class="line">	Reserved			WORD	;0006h - 预留</span><br><span class="line">IMAGE_BOUND_FORWARDER_REF ENDS</span><br></pre></td></tr></table></figure></p>
+<p>TimeDateStamp要与被引用的DLL文件头IMAGE_FILE_HEADER.TimeDataStamp字段吻合,否则会重新计算IAT.</p>
+<p>这两个结构体中所有的OffsetModuleName是相对于绑定导入表首地址的偏移地址,即:绑定导入表首地址 + OffsetModuleName= RVA.</p>
+<p>因为DLL中某些代码会被转移到其它DLL中,为了保证兼容,原DLL保留了函数的定义,IMAGE_BOUND_FORWARDER_REF结构将引入函数涉及的所有动态链接库都列举了出来</p>
+<h1 id="延迟加载导入表"><a href="#延迟加载导入表" class="headerlink" title="延迟加载导入表"></a>延迟加载导入表</h1><p>延迟加载导入指的是:程序载入时,延迟加载的DLL不载入,只有等到程序调用DLL的函数时,才将DLL载入.<br>延迟加载导入数据结构可以根据PE扩展头的DataDirectory找到.该结构定义如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_DELAY_IMPORT_DESCRIPTOR STRUCT</span><br><span class="line">	Attributes		DWORD	;0000h - 属性,必须为0</span><br><span class="line">	Name		DWORD	;0004h - 指向DLL名称的RVA</span><br><span class="line">	ModuleHandle	DWORD	;0008h - DLL模块句柄的RVA</span><br><span class="line">	DelayIAT		DWORD	;000ch - 延迟加载导入IAT的RVA</span><br><span class="line">	DelayINT		DWORD	;0010h - 延迟加载导入INT的RVA</span><br><span class="line">	BoundDelayIT	DWORD	;0014h - 绑定延迟加载导入地址表的RVA</span><br><span class="line">	UnloadDelayIT	DWORD	;0018h - 卸载延迟加载导入地址表的RVA</span><br><span class="line">	TimeStamp	DWORD	;001ch - 此映像绑定到DLL的时间戳</span><br><span class="line">IMAGE_DELAY_IMPORT_DESCRIPTOR ENDS</span><br></pre></td></tr></table></figure></p>
+<p>延迟卸载导入地址表(UIAT)是由IMAGE_THUNK_DATA数组,卸载代码用它来处理明确的卸载请求,它由只读节中已初始化的数据组成,这些数据是原始IAT的副本.处理卸载请求时,释放DLL,将ModuleHandle清零,用UIAT覆盖IAT,还原一切到预加载时的状态</p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
