@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        PE文件结构_4_TLS数据,加载配置目录 - Anko_blog
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> April showers bring May flowers </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.jpg">
+        </div>
+        <div class="name">
+            <i>Anko</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TLS数据"><span class="toc-text">TLS数据</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#加载配置数据"><span class="toc-text">加载配置数据</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> April showers bring May flowers </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        PE文件结构_4_TLS数据,加载配置目录
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2019-04-10 17:13:12</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#window" title="window">window</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#笔记" title="笔记">笔记</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <h1 id="TLS数据"><a href="#TLS数据" class="headerlink" title="TLS数据"></a>TLS数据</h1><p>在使用静态线程局部存储时,会用到PE文件中的TLS数据.TLS数据存放了TLS模板,回调函数位置等信息,一般使用”.tls”节存储,其地址可以根据PE扩展头的DataDirectory找到,具体数据结构如下.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_TLS_DIRECTORY32 STRUCT</span><br><span class="line">	 StartAddressOfRawData	DWORD	;0000h - TLS模板的起始地址</span><br><span class="line">	 EndAddressOfRawData	DWORD	;0004h - TLS模板的结束地址,不包括填充0</span><br><span class="line">	 AddressOfIndex		DWORD	;0008h - TLS索引的位置</span><br><span class="line">	 AddressOfCallBacks	DWORD	;000ch - TLS回调函数数组指针，以NULL结尾</span><br><span class="line">	 SizeOfZeroFill			DWORD	;00010h - 填充0的个数</span><br><span class="line">	 Characteristics			DWORD	;0014h - 保留</span><br><span class="line">IMAGE_TLS_DIRECTORY32 ENDS</span><br></pre></td></tr></table></figure></p>
+<h1 id="加载配置数据"><a href="#加载配置数据" class="headerlink" title="加载配置数据"></a>加载配置数据</h1><p>加载配置数据可以根据PE扩展头的DataDirectory找到,其作用主要是储SEH句柄,具体数据结构如下.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_LOAD_CONFIG_DIRECTORY STRUCT</span><br><span class="line">	 Characteristics				DWORD	;0000h - 加载配置属性,如果存在一般为48h</span><br><span class="line">	 TimeDateStamp			DWORD	;0004h - 时间戳</span><br><span class="line">	 MajorVersion				WORD	;0008h - 主版本号</span><br><span class="line">	 MinorVersion				WORD	;000ah - 次版本号</span><br><span class="line">	 GlobalFlagsClea			 DWORD	;000ch - 标志1</span><br><span class="line">	 GlobalFlagsSet			DWORD	;0010h - 标志2</span><br><span class="line">	 CriticalSectionDefaultTimeout	DWORD	;0014h - 超时</span><br><span class="line">	 DeCommitFreeBlockThreshold	DWORD	;0018h - 释放内存数量</span><br><span class="line">	 DeCommitTotalFreeThreshold	DWORD	;001ch - 空闲内存总量</span><br><span class="line">	 LockPrefixTable			DWORD	;0020h - 使用Lock前缀的指令地址</span><br><span class="line">	 MaximumAllocationSize		DWORD	;0024h - 最大分配粒度</span><br><span class="line">	 VirtualMenoryThreshold		DWORD	;0028h - 最大虚拟内存大小</span><br><span class="line">	 ProcessAffinityMask			DWORD	;002ch - 进程堆标志</span><br><span class="line">	 ProcessHeapFlags			DWORD	;0030h - SetProcessAffinityMask函数参数</span><br><span class="line">	 CSDVersion				WORD	;0034h - Service Pack版本标识</span><br><span class="line">	 Reserved1				WORD	;0036h - 预留</span><br><span class="line">	 EditList					DWORD	;0038h - Cookies指针</span><br><span class="line">	 SecurityCookie				DWORD	;003ch - 指向safe Handler处理程序列表VA</span><br><span class="line">	 SEHandlerTable			DWORD	;0040h</span><br><span class="line">	 SEHandlerCount			DWORD	;0044h - SEHandlerTable列表中除最后的0外的双字个数</span><br><span class="line">IMAGE_LOAD_CONFIG_DIRECTORY ENDS</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>CriticalSectionDefaultTimeout:用于存储进程处于无约束状态的临界区的默认超时值.</li>
+<li>LockPrefixTable:VA,仅用于x86,便于在单处理机中将lock前缀替换成nop指令</li>
+<li>SEHandlerTable: VA,指向一个RVA列表,列表中的RVA指向基于SEH框架的异常处理程序.该列表按升序排列,以双字0结尾.</li>
+<li>ProcessAffinityMask: 若非0,则进程启动时以此为参数调用SetProcessAffinityMask.</li>
+</ul>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>

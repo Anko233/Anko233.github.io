@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content>
+    <meta name="keyword" content>
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>
+        
+        PE文件结构_3_导出表,重定位表,资源表 - Anko_blog
+        
+    </title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/aircloud.css">
+    <link rel="stylesheet" href="/css/gitment.css">
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_pl6z7sid89qkt9.css" rel="stylesheet" type="text/css">
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i> April showers bring May flowers </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar">
+            <img src="/img/avatar.jpg">
+        </div>
+        <div class="name">
+            <i>Anko</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li>
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>主页</span>
+                </a>
+            </li>
+            <li>
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>标签</span>
+                </a>
+            </li>
+            <li>
+                <a href="/archives">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>存档</span>
+                </a>
+            </li>
+            <li>
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>关于</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#重定位表"><span class="toc-text">重定位表</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input">
+            <span id="begin-search">搜索</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+        <div class="index-about-mobile">
+            <i> April showers bring May flowers </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+
+
+<div class="post-container">
+    <div class="post-title">
+        PE文件结构_3_导出表,重定位表,资源表
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">发布于：<span>2019-04-02 17:31:49</span></span>
+        
+        <span class="attr">标签：/
+        
+        <a class="tag" href="/tags/#window" title="window">window</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#笔记" title="笔记">笔记</a>
+        <span>/</span>
+        
+        
+        </span>
+        <span class="attr">访问：<span id="busuanzi_value_page_pv"></span>
+</span>
+
+    </div>
+    <div class="post-content ">
+        <p>#导出表<br>导出表的地址可以根据PE扩展头的DataDirectory找到,节名通常为”.edata”,其指向IMAGE_EXPORT_DIRECTORY结构,该结构定义如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_EXPORT_DIRECTORY STRUCT</span><br><span class="line">	Characteristics			DWORD	;0000h - 标志,未用</span><br><span class="line">	TimeDateStamp		DWORD	;0004h - 时间戳</span><br><span class="line">	MajorVersion			WORD	;0008h - 未用</span><br><span class="line">	MinorVersion			WORD	;000ah - 未用</span><br><span class="line">	nName				DWORD	;000ch - 指向改导出表的文件名字符串,以&quot;\0&quot;结尾</span><br><span class="line">	nBase				DWORD	;0010h - 导出函数的起始序号</span><br><span class="line">	NumberOfFunctions		DWORD	;0014h - 所有导出函数个数</span><br><span class="line">	NumberOfNames		DWORD	;0018h - 以函数名导出的函数个数</span><br><span class="line">	AddressOfFunctions		DWORD	;001ch - 导出函数地址表RVA</span><br><span class="line">	AddressOfNames		DWORD	;0020h - 函数名称地址表RVA</span><br><span class="line">	AddressOfNameOrdinals	DWORD	;0024h - 函数序号地址表,</span><br><span class="line">IMAGE_EXPORT_DIRECTORY ENDS</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p>AddressOfFunctions指向一个双字数组,指向导出函数的RVA.</p>
+</li>
+<li><p>AddressOfNames指向一个字符串指针数组</p>
+</li>
+<li><p>AddressOfNameOrdinals指向函数在AddressOfFunctions中的索引,与AddressOfNames指向的数组一一对应</p>
+</li>
+<li><p>函数编号 = nBase + 索引值.</p>
+</li>
+</ul>
+<p>因此,当我们需要找某个名字的函数地址时,先通过AddressOfNames匹配函数名,再从AddressOfNameOrdinals找到该函数的索引,最后使用索引就可以从AddressOfFunctions找到函数的RVA.</p>
+<h1 id="重定位表"><a href="#重定位表" class="headerlink" title="重定位表"></a>重定位表</h1><p>程序装入内存时,如果基址IMAGE_OPTIONAL_HEADER32.ImageBase已经被使用,则操作系统要重新选择基地址,此时就要对所有重定位信息进行修正,依据就是重定位表.</p>
+<p>重定位表是由一个或多个IMAGE_BASE_RELOCATION结构排列组成,可以根据PE扩展头的DataDirectory找到,节名通常为”.reloc”.IMAGE_BASE_RELOCATION结构定义如下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_BASE_RELOCATION STRUCT</span><br><span class="line">	VirtualAddress	DWORD	;重定位内存页的起始RVA</span><br><span class="line">	SizeOfBlock	DWORD	;重定位块的长度</span><br><span class="line">IMAGE_BASE_RELOCATION ENDS</span><br></pre></td></tr></table></figure></p>
+<p>每一个IMAGE_BASE_RELOCATION后,都会跟上此内存页中的所有重定位表项,每一项大小为1个字,其中低12位表示页内地址,高12位为0或者3.若为0,表示此字仅对齐用,若为3,表示此字中的地址需要修正.</p>
+<p>#资源表<br>PE文件中,除了代码部分,还会用到如音乐,图形界面,图标等资源,资源表就是用来记录资源文件的位置的.</p>
+<p>PE文件资源组织方式为树,有三级目录,一级子目录按资源类型分类,二级子目录按资源ID分类,3级目录按资源的代码页分类,不同语言代码页对应不同数据.<br>资源表的地址可以根据PE扩展头的DataDirectory找到,节名通常为”.rsrc”.</p>
+<p>资源表的结构为资源目录头随后跟着多个资源目录项,每一个资源目录项会指向下一级的某个资源目录头,三级目录则会指向一个资源数据项结构.各数据结构如下</p>
+<p>资源目录头IMAGE_RESOURCE_DIRCTORY<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_RESOURCE_DIRCTORY STRUCT</span><br><span class="line">	Characteristics			DWORD	;0000h - 资源属性,保留</span><br><span class="line">	TimeDateStamp		DWORD	;0004h - 时间戳</span><br><span class="line">	MajorVersion			WORD	;0008h - 资源大版本号</span><br><span class="line">	MinorVersion			WORD	;000ah - 资源小版本号</span><br><span class="line">	NumberOfNamedEntries	WORD	;000ch - 以名称命名的入口数量</span><br><span class="line">	NumberOfIdEntries		WORD	;000eh - 以ID命名的入口数量</span><br><span class="line">IMAGE_RESOURCE_DIRCTORY ENDS</span><br></pre></td></tr></table></figure></p>
+<p>资源目录项IMAGE_RESOURCE_DIRCTORY_ENTRY<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_RESOURCE_DIRCTORY_ENTRY STRUCT</span><br><span class="line">	union	DWORD	;0000h</span><br><span class="line">		rName</span><br><span class="line">		Name1</span><br><span class="line">		Id</span><br><span class="line">	ends</span><br><span class="line">	union	DWORD	;0004h</span><br><span class="line">		OffsetToData</span><br><span class="line">		rDirectory</span><br><span class="line">	ends</span><br><span class="line">IMAGE_RESOURCE_DIRCTORY_ENTRY ENDS</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>资源目录项跟在资源目录项后,目录项之间线性排列,先按照字母升序,再按照ID升序排列</li>
+<li>第二个union字段,当第31位为0时,指向资源数据项,通常在第三级目录,31位为1时,指向下一级目录块的起始地址.偏移相对于资源起始地址.</li>
+<li>第一个union字段比较复杂,当字段最高位为1时:<ul>
+<li>于一级目录:低31位表示一个相对于资源基地址的偏移,指向一个IMAGE_RESOURCE_DIR_STRING_U结构,表示非标准资源类型</li>
+<li>于二级目录:同上,表示非标准类型下的命名</li>
+<li>于三级目录:同上,表示非标准语言的名字<br>为0时:</li>
+<li>于一级目录:表示预定义类型,低16位表示ID.</li>
+<li>于二级目录:表示标准的命名.</li>
+<li>于三级目录:表示标准的语言代码.</li>
+</ul>
+</li>
+</ul>
+<p>IMAGE_RESOURCE_DIR_STRING_U结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_RESOURCE_DIR_STRING_U STRUCT</span><br><span class="line">	Length1		WORD	;0000h - 字符串长度</span><br><span class="line">	NameString	WORD	;0002h - Unicode字符串</span><br><span class="line">IMAGE_RESOURCE_DIR_STRING_U ENDS</span><br></pre></td></tr></table></figure></p>
+<p>预定义资源类型表(我也不知道为什么0,13没有):</p>
+<table>
+<thead>
+<tr>
+<th>数值</th>
+<th>常量符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>RT_CURSOR</td>
+<td>光标</td>
+</tr>
+<tr>
+<td>2</td>
+<td>RT_BITMAP</td>
+<td>位图</td>
+</tr>
+<tr>
+<td>3</td>
+<td>RT_ICON</td>
+<td>图标</td>
+</tr>
+<tr>
+<td>4</td>
+<td>RT_MENU</td>
+<td>菜单</td>
+</tr>
+<tr>
+<td>5</td>
+<td>RT_DIALOG</td>
+<td>对话框</td>
+</tr>
+<tr>
+<td>6</td>
+<td>RT_STRING</td>
+<td>字符串</td>
+</tr>
+<tr>
+<td>7</td>
+<td>RT_FONTDIR</td>
+<td>字体目录</td>
+</tr>
+<tr>
+<td>8</td>
+<td>RT_FONT</td>
+<td>字体</td>
+</tr>
+<tr>
+<td>9</td>
+<td>RT_ACCELERATOR</td>
+<td>RT_加速键</td>
+</tr>
+<tr>
+<td>10</td>
+<td>RT_RCDATA</td>
+<td>未格式化资源</td>
+</tr>
+<tr>
+<td>11</td>
+<td>RT_MESSAGETABLE</td>
+<td>消息表</td>
+</tr>
+<tr>
+<td>12</td>
+<td>RT_GROUP_CURSOR</td>
+<td>光标组</td>
+</tr>
+<tr>
+<td>14</td>
+<td>RT_GROUP_ICON</td>
+<td>图标组</td>
+</tr>
+<tr>
+<td>16</td>
+<td>RT_VERSION</td>
+<td>版本</td>
+</tr>
+</tbody>
+</table>
+<p>资源数据项IMAGE_RESOURCE_DATA_ENTRY结构如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">IMAGE_RESOURCE_DATA_ENTRY STRUCT</span><br><span class="line">	OffsetToData	DWORD	;0000h - 资源数据的RVA</span><br><span class="line">	Size1		DWORD	;0004h - 资源数据的长度</span><br><span class="line">	CodePage		DWORD	;0008h - 代码页</span><br><span class="line">	Reserved		DWORD	;000ch - 保留字段</span><br><span class="line">IMAGE_RESOURCE_DATA_ENTRY ENDS</span><br></pre></td></tr></table></figure></p>
+
+        
+        <br>
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+
+        <div id="lv-container">
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        
+
+        
+
+        
+
+        
+
+        
+
+    </ul>
+    
+    <p>
+        <span id="busuanzi_container_site_pv">
+            <span id="busuanzi_value_site_pv"></span>PV
+        </span>
+        <span id="busuanzi_container_site_uv">
+            <span id="busuanzi_value_site_uv"></span>UV
+        </span>
+        Created By <a href="https://hexo.io/">Hexo</a>  Theme <a href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = ""
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="/js/index.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+</html>
